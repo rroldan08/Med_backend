@@ -5,7 +5,6 @@ from rest_framework.response import Response
 from .models import User
 import jwt, datetime
 
-# Create your views here.
 
 class RegisterView(APIView):
     def post(self, request):
@@ -32,7 +31,6 @@ class LoginView(APIView):
             'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
             'iat': datetime.datetime.utcnow()
         }
-
 
         token = jwt.encode(payload, 'secret', algorithm='HS256')
 
