@@ -172,25 +172,42 @@ class CreatingMed(APIView):
 
         data = serializer.data
 
+        # gets the medicine object
         an = User_Medicine.objects.get(usermed_id=serializer.data['usermed_id'])
 
+        # this contains all of the days
+        weekDays = []
+        
         if 'days' in jd:
             days = jd['days']
+            # deletes all of the days from the database
             if not days:
                 # delete all of the day objects
                 med_to_daysObjs = medicine_to_daysOfWeek.objects.filter(med=an)
                 for med in med_to_daysObjs:
                     med.delete()
+            else:
+                # empty the databse fro these days
+                med_to_daysObjs = medicine_to_daysOfWeek.objects.filter(med=an)
+                for med in med_to_daysObjs:
+                    med.delete()
 
-
+                for day in days:
+                    try:
+                        you = DaysOfWeek.objects.get(day_id=day)
+                        weekDays.append(you)
+                    except:
+                        res = {'success' : False, 'error' : "day id does not exist"}
+                        return response.Response(res, status=status.HTTP_400_BAD_REQUEST)
+                for day in weekDays:
+                    b = medicine_to_daysOfWeek(day=day, med=User_Medicine.objects.get(usermed_id=serializer.data['usermed_id']))
+                    b.save()
 
         days = {}
         p = medicine_to_daysOfWeek.objects.filter(med=an)
         for day in p:
             days[int(day.day.day_id)] = day.day.name
         data.update({'days': days})
-
-
 
         res = {'success' : True, 'data': data}
         return response.Response(res, status=status.HTTP_201_CREATED)
