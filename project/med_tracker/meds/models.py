@@ -50,3 +50,30 @@ class User_Medicine(models.Model):
 
     class Meta:
         db_table = 'User_Medicine'
+
+
+class DaysOfWeek(models.Model):
+    day_id = models.BigAutoField(
+        auto_created=True,
+        primary_key=True,
+        unique=True,
+        null=False,
+        verbose_name='day_id'
+        )
+    name = models.CharField(max_length=1000, null=True)
+
+# this maps a medicine to a specific name of the week
+class medicine_to_daysOfWeek(models.Model):
+    day = models.ForeignKey(
+         DaysOfWeek,
+         on_delete=models.CASCADE,
+         verbose_name='day',
+         null=True,
+    )
+    # this contains the name and the med
+    med = models.ForeignKey(
+         User_Medicine,
+         on_delete=models.CASCADE,
+         verbose_name='med',
+         null=True,
+    )
