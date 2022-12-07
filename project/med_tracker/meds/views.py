@@ -32,7 +32,6 @@ class CreatingMed(APIView):
         user = User.objects.filter(id=payload['id']).first()
 
 
-
         serializer = AllUser_MedicineSerializer()
         res = {'success' : True, 'data': serializer.get_user_medicine(obj=user)}
 
@@ -69,7 +68,6 @@ class CreatingMed(APIView):
 
         serializer = User_MedicineSerializer(data=val_data)
 
-
         if serializer.is_valid():
             serializer.save()
         else:
@@ -79,6 +77,49 @@ class CreatingMed(APIView):
 
         res = {'success' : True, 'data' : serializer.data}
         return response.Response(res, status=status.HTTP_201_CREATED)
+
+    def delete(self, request):
+        jd = request.data
+
+        token = request.COOKIES.get('jwt')
+
+        if not token:
+            raise AuthenticationFailed('Unauthenticated!')
+
+        try:
+            payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed('Unauthenticated!')
+
+        user = User.objects.filter(id=payload['id']).first()
+        # make sure that that user is logged in
+
+        jd = request.data
+
+        # checking if id in body
+        if "id" not in jd:
+            res = {'success' : False, 'error' : 'body requirement missing'}
+            return response.Response(res, status=status.HTTP_400_BAD_REQUEST)
+
+        anId = jd['id']
+
+
+        objs = User_Medicine.objects.filter(usermed_id=anId, user=user)
+
+        if not objs:
+            res = {'success' : False, 'error' : 'object does not exist'}
+            return response.Response(res, status=status.HTTP_400_BAD_REQUEST)
+
+        objs.delete()
+
+
+
+
+
+        res = {'success' : True, 'data' : {}}
+        return response.Response(res, status=status.HTTP_201_CREATED)
+
+
 
 
 
