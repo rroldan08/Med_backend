@@ -39,8 +39,12 @@ class CreatingMed(APIView):
 
         user = User.objects.filter(id=payload['id']).first()
 
-        # creating the
+        # check
+        if 'name' not in jd or 'type' not in jd or 'time' not in jd:
+            res = {'success' : False, 'error' : "not all body requirements are included"}
+            return response.Response(res, status=status.HTTP_400_BAD_REQUEST)
 
+        # creating the
         name = jd['name']
         type = jd['type']
         time = jd['time']
@@ -49,11 +53,13 @@ class CreatingMed(APIView):
 
         serializer = User_MedicineSerializer(data=val_data)
 
+
         if serializer.is_valid():
             serializer.save()
         else:
             res = {'success' : False, 'error' : serializer.errors}
             return response.Response(res, status=status.HTTP_400_BAD_REQUEST)
+
 
 
         res = {'success' : True, 'data' : serializer.data}
