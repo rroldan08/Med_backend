@@ -6,14 +6,33 @@ from rest_framework import serializers
 class User_MedicineSerializer(serializers.ModelSerializer):
     class Meta:
         model = User_Medicine
-        fields = ('usermed_id', 'name', 'type', 'time',)
+        fields = ('usermed_id', 'name', 'type', 'time','user',)
 
         def create(self,validated_data):
-            gender =  Genders.objects.create(**validated_data)
+            print("hshshshshss")
+            print(validated_data)
+            gender =  User_Medicine.objects.create(**validated_data)
             return gender
 
+# this is the serializer to get all of the medicines that belong to a user
+class AllUser_MedicineSerializer(serializers.ModelSerializer):
+    user_medicine = serializers.SerializerMethodField()
+    class Meta:
+        model = User_Medicine
+        fields = ('user_medicine', )
 
-    
+    # this is to get all of the
+    def get_user_medicine(self, obj):
+
+        nums2 = User_Medicine.objects.all()
+        for a in nums2:
+            print(a.user)
+
+        nums = User_Medicine.objects.all().filter(user=obj).values('usermed_id', 'name', 'type', 'time')
+        print(nums)
+        return nums
+
+
 
 
 
@@ -22,7 +41,6 @@ class Med_typeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Med_type
         fields = ('med_types',)
-
 
     def get_med_types(self):
         print(Med_type.objects.all())
