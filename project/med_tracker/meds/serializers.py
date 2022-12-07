@@ -41,6 +41,11 @@ class AllUser_MedicineSerializer(serializers.ModelSerializer):
 
 
 
+class MedicineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User_Medicine
+        fields = '__all__'
+
 
 class Med_typeSerializer(serializers.ModelSerializer):
     med_types = serializers.SerializerMethodField()

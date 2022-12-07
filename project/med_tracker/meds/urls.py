@@ -18,6 +18,7 @@ from django.urls import path
 from .views import CreatingMed
 from .views import MedType
 from .views import DaysView
+from .views import Medicine
 
 
 from django.urls import path
@@ -27,5 +28,8 @@ urlpatterns = [
     path('create', CreatingMed.as_view()),
     path('create/<str:id>', CreatingMed.as_view(), name="createbyid"),
     path('types', MedType.as_view()),
-    path('days', DaysView.as_view())
+    path('days', DaysView.as_view()),
+    path('', Medicine.as_view()),
+    path('<str:id>', Medicine.as_view())
+
 ]

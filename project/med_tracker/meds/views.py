@@ -8,6 +8,7 @@ from meds.models import  User_Medicine
 from meds.models import DaysOfWeek
 from meds.models import medicine_to_daysOfWeek
 from meds.serializers import Med_typeSerializer, User_MedicineSerializer, AllUser_MedicineSerializer, AllDaysOfWeekSerializer
+from meds.serializers import MedicineSerializer
 from rest_framework import response, status, permissions
 from users.models import User
 
@@ -182,6 +183,43 @@ class CreatingMed(APIView):
         res = {'success' : True, 'data': serializer.data}
         return response.Response(res, status=status.HTTP_201_CREATED)
 
+
+class Medicine(APIView):
+    def get(self, request, id):
+        # getting the medicine with that specific id
+        try:
+            you = User_Medicine.objects.get(usermed_id=id)
+
+        except:
+            res = {'success' : False, 'error' : "id does not exist"}
+            return response.Response(res, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+        rr = MedicineSerializer(instance=you)
+        data = rr.data
+
+        days = {}
+        p = medicine_to_daysOfWeek.objects.filter(med=you)
+        for day in p:
+            days[int(day.day.day_id)] = day.day.name
+        data.update({'days': days})
+
+        print(data)
+
+        print(rr.data)
+
+
+
+
+
+        # print(rr.data)
+
+
+
+        res = {'success' : True, 'data': data}
+        return response.Response(res)
 
 # getting the types of meds
 # this is avaialble to anyone
