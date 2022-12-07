@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from .views import CreatingMed
+from .views import MedType
 
 
 from django.urls import path
@@ -23,4 +24,5 @@ from django.urls import path
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('create', CreatingMed.as_view()),
+    path('types', MedType.as_view())
 ]

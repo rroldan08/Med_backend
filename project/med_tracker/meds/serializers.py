@@ -3,6 +3,20 @@ from meds.models import  User_Medicine
 from rest_framework import serializers
 
 
+class User_MedicineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User_Medicine
+        fields = ('usermed_id', 'name', 'type', 'time',)
+
+        def create(self,validated_data):
+            gender =  Genders.objects.create(**validated_data)
+            return gender
+
+
+    
+
+
+
 class Med_typeSerializer(serializers.ModelSerializer):
     med_types = serializers.SerializerMethodField()
     class Meta:
