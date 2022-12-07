@@ -1,4 +1,4 @@
-"""med_tracker URL Configuration
+"""meds URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/4.1/topics/http/urls/
@@ -14,13 +14,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
+from .views import CreatingMed
 
+
+from django.urls import path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('medicine/', include('meds.urls')),
-    path('api/', include('users.urls')),
-
-    # path('meds/',include('meds.urls'))
+    path('create', CreatingMed.as_view()),
 ]
