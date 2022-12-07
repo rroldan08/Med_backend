@@ -103,7 +103,6 @@ class CreatingMed(APIView):
 
         anId = jd['id']
 
-
         objs = User_Medicine.objects.filter(usermed_id=anId, user=user)
 
         if not objs:
@@ -112,15 +111,43 @@ class CreatingMed(APIView):
 
         objs.delete()
 
-
-
-
-
         res = {'success' : True, 'data' : {}}
         return response.Response(res, status=status.HTTP_201_CREATED)
 
+    # provide the id
+
+    def patch(self, request,id):
+        jd = request.data
+
+        token = request.COOKIES.get('jwt')
+
+        if not token:
+            raise AuthenticationFailed('Unauthenticated!')
+
+        try:
+            payload = jwt.decode(token, 'secret', algorithms=['HS256'])
+        except jwt.ExpiredSignatureError:
+            raise AuthenticationFailed('Unauthenticated!')
+
+        try:
+            you = User_Medicine.objects.get(usermed_id=id)
+
+        except:
+            res = {'success' : False, 'error' : "id does not exist"}
+            return response.Response(res, status=status.HTTP_400_BAD_REQUEST)
 
 
+
+        serializer = User_MedicineSerializer(you,data=jd, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            res = {'success' : False, 'error' : "invalid body requirements"}
+            return response.Response(res, status=status.HTTP_400_BAD_REQUEST)
+
+        res = {'success' : True, 'data': serializer.data}
+        return response.Response(res, status=status.HTTP_201_CREATED)
 
 
 # getting the types of meds

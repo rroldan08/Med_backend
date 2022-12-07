@@ -24,5 +24,6 @@ from django.urls import path
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('create', CreatingMed.as_view()),
+    path('create/<str:id>', CreatingMed.as_view(), name="createbyid"),
     path('types', MedType.as_view())
 ]
