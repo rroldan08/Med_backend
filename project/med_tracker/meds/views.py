@@ -15,8 +15,6 @@ from users.models import User
 
 import jwt, datetime
 
-
-
 class CreatingMed(APIView):
 
     def get(self, request):
@@ -78,13 +76,6 @@ class CreatingMed(APIView):
                 return response.Response(res, status=status.HTTP_400_BAD_REQUEST)
 
         d = datetime.time(int(time2[0]), int(time2[1]), 0)
-
-
-
-
-
-
-
 
         val_data = {"user": user.id, "name": name, "type": type.med_typeID, "time": d}
 
@@ -171,7 +162,6 @@ class CreatingMed(APIView):
             return response.Response(res, status=status.HTTP_400_BAD_REQUEST)
 
 
-
         serializer = User_MedicineSerializer(you,data=jd, partial=True)
 
         if serializer.is_valid():
@@ -180,7 +170,29 @@ class CreatingMed(APIView):
             res = {'success' : False, 'error' : "invalid body requirements"}
             return response.Response(res, status=status.HTTP_400_BAD_REQUEST)
 
-        res = {'success' : True, 'data': serializer.data}
+        data = serializer.data
+
+        an = User_Medicine.objects.get(usermed_id=serializer.data['usermed_id'])
+
+        if 'days' in jd:
+            days = jd['days']
+            if not days:
+                # delete all of the day objects
+                med_to_daysObjs = medicine_to_daysOfWeek.objects.filter(med=an)
+                for med in med_to_daysObjs:
+                    med.delete()
+
+
+
+        days = {}
+        p = medicine_to_daysOfWeek.objects.filter(med=an)
+        for day in p:
+            days[int(day.day.day_id)] = day.day.name
+        data.update({'days': days})
+
+
+
+        res = {'success' : True, 'data': data}
         return response.Response(res, status=status.HTTP_201_CREATED)
 
 
