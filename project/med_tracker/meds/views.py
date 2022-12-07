@@ -78,7 +78,7 @@ class CreatingMed(APIView):
         res = {'success' : True, 'data' : serializer.data}
         return response.Response(res, status=status.HTTP_201_CREATED)
 
-    def delete(self, request):
+    def delete(self, request,id):
         jd = request.data
 
         token = request.COOKIES.get('jwt')
@@ -96,14 +96,8 @@ class CreatingMed(APIView):
 
         jd = request.data
 
-        # checking if id in body
-        if "id" not in jd:
-            res = {'success' : False, 'error' : 'body requirement missing'}
-            return response.Response(res, status=status.HTTP_400_BAD_REQUEST)
 
-        anId = jd['id']
-
-        objs = User_Medicine.objects.filter(usermed_id=anId, user=user)
+        objs = User_Medicine.objects.filter(usermed_id=id, user=user)
 
         if not objs:
             res = {'success' : False, 'error' : 'object does not exist'}
