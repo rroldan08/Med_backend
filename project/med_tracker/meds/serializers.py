@@ -9,8 +9,6 @@ class User_MedicineSerializer(serializers.ModelSerializer):
         fields = ('usermed_id', 'name', 'type', 'time','user',)
 
         def create(self,validated_data):
-            print("hshshshshss")
-            print(validated_data)
             gender =  User_Medicine.objects.create(**validated_data)
             return gender
 
@@ -23,17 +21,8 @@ class AllUser_MedicineSerializer(serializers.ModelSerializer):
 
     # this is to get all of the
     def get_user_medicine(self, obj):
-
-        nums2 = User_Medicine.objects.all()
-        for a in nums2:
-            print(a.user)
-
-        nums = User_Medicine.objects.all().filter(user=obj).values('usermed_id', 'name', 'type', 'time')
-        print(nums)
+        nums = User_Medicine.objects.all().filter(user=obj).values('name', 'type', 'time')
         return nums
-
-
-
 
 
 class Med_typeSerializer(serializers.ModelSerializer):
