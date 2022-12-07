@@ -5,15 +5,15 @@ from rest_framework.response import Response
 from django.http.response import JsonResponse
 from meds.models import  Med_type
 from meds.models import  User_Medicine
-from meds.serializers import Med_typeSerializer, User_MedicineSerializer, AllUser_MedicineSerializer
-
+from meds.models import DaysOfWeek
+from meds.models import medicine_to_daysOfWeek
+from meds.serializers import Med_typeSerializer, User_MedicineSerializer, AllUser_MedicineSerializer, AllDaysOfWeekSerializer
+from meds.serializers import MedicineSerializer
 from rest_framework import response, status, permissions
 from users.models import User
 
 
 import jwt, datetime
-
-
 
 class CreatingMed(APIView):
 
@@ -32,8 +32,8 @@ class CreatingMed(APIView):
         user = User.objects.filter(id=payload['id']).first()
 
 
-        serializer = AllUser_MedicineSerializer()
-        res = {'success' : True, 'data': serializer.get_user_medicine(obj=user)}
+        serializer = AllUser_MedicineSerializer(user)
+        res = {'success' : True, 'data': serializer.data}
 
         return response.Response(res)
 
@@ -62,17 +62,48 @@ class CreatingMed(APIView):
         # creating the
         name = jd['name']
         type = Med_type.objects.filter(med_typeID=int(jd['type']))[0]
-        time = jd['time']
 
-        val_data = {"user": user.id, "name": name, "type": type.med_typeID, "time": time}
+        time2 = jd['time'].split(':')
+        # make sure there are two items and both are numbers
+
+        if (len(time2) != 2):
+            res = {'success' : False, 'error' : "time is not valid format"}
+            return response.Response(res, status=status.HTTP_400_BAD_REQUEST)
+
+        for t in time2:
+            if not t.isnumeric():
+                res = {'success' : False, 'error' : "time is not valid format"}
+                return response.Response(res, status=status.HTTP_400_BAD_REQUEST)
+
+        d = datetime.time(int(time2[0]), int(time2[1]), 0)
+
+        val_data = {"user": user.id, "name": name, "type": type.med_typeID, "time": d}
 
         serializer = User_MedicineSerializer(data=val_data)
+
+        weekDays = []
+
 
         if serializer.is_valid():
             serializer.save()
         else:
             res = {'success' : False, 'error' : serializer.errors}
             return response.Response(res, status=status.HTTP_400_BAD_REQUEST)
+
+        if type.med_typeID == 2:
+            days = jd['days']
+            for day in days:
+                try:
+                    you = DaysOfWeek.objects.get(day_id=day)
+                    weekDays.append(you)
+                except:
+                    res = {'success' : False, 'error' : "day id does not exist"}
+                    return response.Response(res, status=status.HTTP_400_BAD_REQUEST)
+            for day in weekDays:
+                # creating the days of the week
+                b = medicine_to_daysOfWeek(day=day, med=User_Medicine.objects.get(usermed_id=serializer.data['usermed_id']))
+                b.save()
+
 
 
         res = {'success' : True, 'data' : serializer.data}
@@ -131,7 +162,6 @@ class CreatingMed(APIView):
             return response.Response(res, status=status.HTTP_400_BAD_REQUEST)
 
 
-
         serializer = User_MedicineSerializer(you,data=jd, partial=True)
 
         if serializer.is_valid():
@@ -140,9 +170,70 @@ class CreatingMed(APIView):
             res = {'success' : False, 'error' : "invalid body requirements"}
             return response.Response(res, status=status.HTTP_400_BAD_REQUEST)
 
-        res = {'success' : True, 'data': serializer.data}
+        data = serializer.data
+
+        # gets the medicine object
+        an = User_Medicine.objects.get(usermed_id=serializer.data['usermed_id'])
+
+        # this contains all of the days
+        weekDays = []
+        
+        if 'days' in jd:
+            days = jd['days']
+            # deletes all of the days from the database
+            if not days:
+                # delete all of the day objects
+                med_to_daysObjs = medicine_to_daysOfWeek.objects.filter(med=an)
+                for med in med_to_daysObjs:
+                    med.delete()
+            else:
+                # empty the databse fro these days
+                med_to_daysObjs = medicine_to_daysOfWeek.objects.filter(med=an)
+                for med in med_to_daysObjs:
+                    med.delete()
+
+                for day in days:
+                    try:
+                        you = DaysOfWeek.objects.get(day_id=day)
+                        weekDays.append(you)
+                    except:
+                        res = {'success' : False, 'error' : "day id does not exist"}
+                        return response.Response(res, status=status.HTTP_400_BAD_REQUEST)
+                for day in weekDays:
+                    b = medicine_to_daysOfWeek(day=day, med=User_Medicine.objects.get(usermed_id=serializer.data['usermed_id']))
+                    b.save()
+
+        days = {}
+        p = medicine_to_daysOfWeek.objects.filter(med=an)
+        for day in p:
+            days[int(day.day.day_id)] = day.day.name
+        data.update({'days': days})
+
+        res = {'success' : True, 'data': data}
         return response.Response(res, status=status.HTTP_201_CREATED)
 
+
+class Medicine(APIView):
+    def get(self, request, id):
+        # getting the medicine with that specific id
+        try:
+            you = User_Medicine.objects.get(usermed_id=id)
+
+        except:
+            res = {'success' : False, 'error' : "id does not exist"}
+            return response.Response(res, status=status.HTTP_400_BAD_REQUEST)
+
+        rr = MedicineSerializer(instance=you)
+        data = rr.data
+
+        days = {}
+        p = medicine_to_daysOfWeek.objects.filter(med=you)
+        for day in p:
+            days[int(day.day.day_id)] = day.day.name
+        data.update({'days': days})
+
+        res = {'success' : True, 'data': data}
+        return response.Response(res)
 
 # getting the types of meds
 # this is avaialble to anyone
@@ -150,4 +241,11 @@ class MedType(APIView):
     def get(self, request):
         serializer = Med_typeSerializer()
         res = {'success' : True, 'data': serializer.get_med_types()}
+        return response.Response(res)
+
+
+class DaysView(APIView):
+    def get(self, request):
+        serializer = AllDaysOfWeekSerializer()
+        res = {'success' : True, 'data': serializer.get_days()}
         return response.Response(res)
