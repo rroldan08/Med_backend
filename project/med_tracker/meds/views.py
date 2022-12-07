@@ -194,9 +194,6 @@ class Medicine(APIView):
             res = {'success' : False, 'error' : "id does not exist"}
             return response.Response(res, status=status.HTTP_400_BAD_REQUEST)
 
-
-
-
         rr = MedicineSerializer(instance=you)
         data = rr.data
 
@@ -205,18 +202,6 @@ class Medicine(APIView):
         for day in p:
             days[int(day.day.day_id)] = day.day.name
         data.update({'days': days})
-
-        print(data)
-
-        print(rr.data)
-
-
-
-
-
-        # print(rr.data)
-
-
 
         res = {'success' : True, 'data': data}
         return response.Response(res)
