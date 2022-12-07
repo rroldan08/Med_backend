@@ -62,9 +62,23 @@ class CreatingMed(APIView):
         # creating the
         name = jd['name']
         type = Med_type.objects.filter(med_typeID=int(jd['type']))[0]
-        time = jd['time']
 
-        val_data = {"user": user.id, "name": name, "type": type.med_typeID, "time": time}
+        time2 = jd['time'].split(':')
+        # make sure there are two items and both are numbers
+
+        if (len(time2) != 2):
+            res = {'success' : False, 'error' : "time is not valid format"}
+            return response.Response(res, status=status.HTTP_400_BAD_REQUEST)
+
+        for t in time2:
+            if not t.isnumeric():
+                res = {'success' : False, 'error' : "time is not valid format"}
+                return response.Response(res, status=status.HTTP_400_BAD_REQUEST)
+
+        d = datetime.time(int(time2[0]), int(time2[1]), 0)
+
+
+        val_data = {"user": user.id, "name": name, "type": type.med_typeID, "time": d}
 
         serializer = User_MedicineSerializer(data=val_data)
 

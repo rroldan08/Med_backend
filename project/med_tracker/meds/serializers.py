@@ -21,7 +21,7 @@ class AllUser_MedicineSerializer(serializers.ModelSerializer):
 
     # this is to get all of the
     def get_user_medicine(self, obj):
-        nums = User_Medicine.objects.all().filter(user=obj).values('name', 'type', 'time')
+        nums = User_Medicine.objects.all().filter(user=obj).values('name', 'type', 'time',)
         return nums
 
 

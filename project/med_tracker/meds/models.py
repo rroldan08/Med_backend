@@ -46,7 +46,7 @@ class User_Medicine(models.Model):
     )
 
     #this contains the time that the medicine must be taken in
-    time = models.CharField(max_length=1000, null=True)
+    time = models.TimeField(null=True)
 
     class Meta:
         db_table = 'User_Medicine'
