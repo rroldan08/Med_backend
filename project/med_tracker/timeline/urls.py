@@ -1,4 +1,4 @@
-"""med_tracker URL Configuration
+"""timeline URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/4.1/topics/http/urls/
@@ -14,14 +14,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
-
+from django.urls import path
+from .views import TimeLineView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('medicine/', include('meds.urls')),
-    path('api/', include('users.urls')),
-    path('timeline/', include('timeline.urls'))
-
-    # path('meds/',include('meds.urls'))
+    path('daily/', TimeLineView.as_view()),
 ]
