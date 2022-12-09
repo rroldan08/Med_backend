@@ -8,6 +8,7 @@ from datetime import date
 from meds.models import  User_Medicine
 from .serializers import MedicineTimelineSerializer
 from .models import Taken_medicine
+from .models import Medicine_taken
 import datetime
 
 import jwt
@@ -16,7 +17,6 @@ from datetime import timedelta
 
 
 class TimeLineView(APIView):
-    #
     def get(self, request):
 
         # get the user via cookies
@@ -40,13 +40,11 @@ class TimeLineView(APIView):
         today = date.today()
         d2 = today.strftime("%B %d")
         x = today.isoweekday()
-        print(today)
-        print(d2)
-        print(x)
 
         res = {'success' : True, 'data': rr.data}
         return response.Response(res)
 
+# medication has been taken
 class TakeMedicineInTimelineView(APIView):
 
     def post(self, request, id):
@@ -74,19 +72,22 @@ class TakeMedicineInTimelineView(APIView):
 
         med = meds[0]
 
-        yesterday = datetime.date.today() - datetime.timedelta(days=1)
-        # today = date.today()
-        # TODO
+        today_min = datetime.datetime.combine(datetime.date.today(), datetime.time.min)
+        today_max = datetime.datetime.combine(datetime.date.today(), datetime.time.max)
 
-        # today_min = datetime.datetime.combine(datetime.date.today(), datetime.time.min)
-        # today_max = datetime.datetime.combine(datetime.date.today(), datetime.time.max)
-        #
-        # n = Taken_medicine.objects.get(created_at__range=(today_min, today_max), usermed_id = med.usermed_id)
-        #
-        # print(n.)
+        try:
+            n = Medicine_taken.objects.get(created_at__range=(today_min, today_max), usermed_id = med)
 
-        # medicineToTake =
+            n.delete()
 
+        except:
+            medicineToTake = Medicine_taken(usermed_id=med)
+            medicineToTake.save()
 
-        res = {'success' : True, 'data': {}}
+            res = {'success' : True, 'data': 'pill has been taken'}
+            return response.Response(res)
+
+        # delete medicine from there
+
+        res = {'success' : True, 'message': 'pill is no longer taken'}
         return response.Response(res)
