@@ -1,10 +1,12 @@
 from meds.models import  Med_type
 from meds.models import  User_Medicine
 from meds.models import DaysOfWeek
+from .models import Medicine_taken
 from rest_framework import serializers
 
 from meds.models import medicine_to_daysOfWeek
 from datetime import date
+import datetime
 
 
 class MedicineTimelineSerializer(serializers.ModelSerializer):
@@ -32,7 +34,19 @@ class MedicineTimelineSerializer(serializers.ModelSerializer):
                 nObj['time'] = an.time
                 nObj['type'] = type[an.type.med_typeID]
                 nObj['quantity'] = 1
-                nObj['taken'] = False
+                nObj['taken'] = True
+
+                # setting th taken functionality
+                today_min = datetime.datetime.combine(datetime.date.today(), datetime.time.min)
+                today_max = datetime.datetime.combine(datetime.date.today(), datetime.time.max)
+
+                try:
+                    n = Medicine_taken.objects.get(created_at__range=(today_min, today_max), usermed_id = an.usermed_id)
+
+                except:
+                    nObj['taken'] = False
+
+
                 isValid = False
 
                 days = []
@@ -53,7 +67,20 @@ class MedicineTimelineSerializer(serializers.ModelSerializer):
                 nObj['time'] = an.time
                 nObj['type'] = type[an.type.med_typeID]
                 nObj['quantity'] = 1
-                nObj['taken'] = False
+                nObj['taken'] = True
+                # setting th taken functionality
+                today_min = datetime.datetime.combine(datetime.date.today(), datetime.time.min)
+                today_max = datetime.datetime.combine(datetime.date.today(), datetime.time.max)
+
+                try:
+                    n = Medicine_taken.objects.get(created_at__range=(today_min, today_max), usermed_id = an)
+
+                except:
+                    nObj['taken'] = False
+
+
+
+
                 rr.append(nObj)
 
         return rr

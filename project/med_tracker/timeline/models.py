@@ -16,3 +16,14 @@ class Taken_medicine(models.Model):
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Medicine_taken(models.Model):
+    usermed_id = models.ForeignKey(
+         User_Medicine,
+         on_delete=models.CASCADE,
+         verbose_name='med',
+         null=False,
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
