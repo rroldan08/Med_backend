@@ -30,13 +30,7 @@ class TimeLineView(APIView):
         # get all of the pills
         p = User_Medicine.objects.order_by().filter(user=user)
 
-        print(p)
-
         rr = MedicineTimelineSerializer(instance=p)
-        # print()
-
-
-
 
         today = date.today()
         d2 = today.strftime("%B %d")
@@ -45,7 +39,15 @@ class TimeLineView(APIView):
         print(d2)
         print(x)
 
-
-
         res = {'success' : True, 'data': rr.data}
+        return response.Response(res)
+
+class TakeMedicineInTimelineView(APIView):
+
+    def post(self, request, id):
+
+        #
+
+
+        res = {'success' : True, 'data': {}}
         return response.Response(res)

@@ -16,8 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from .views import TimeLineView
+from .views import TakeMedicineInTimelineView
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('daily/', TimeLineView.as_view()),
+    path('takeMedicine/<str:id>', TakeMedicineInTimelineView.as_view())
+
 ]

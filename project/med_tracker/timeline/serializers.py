@@ -56,8 +56,6 @@ class MedicineTimelineSerializer(serializers.ModelSerializer):
                 nObj['taken'] = False
                 rr.append(nObj)
 
-
-
         return rr
 
     def get_fullday(self, obj):
