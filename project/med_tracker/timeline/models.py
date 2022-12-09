@@ -8,11 +8,11 @@ from django.shortcuts import render
 
 
 class Taken_medicine(models.Model):
-    usermed_id = models.BigAutoField(
-        auto_created=True,
-        primary_key=True,
-        unique=True,
-        null=False,
-        verbose_name='med_id'
-        )
+    usermed_id = models.ForeignKey(
+         User_Medicine,
+         on_delete=models.CASCADE,
+         verbose_name='med',
+         null=False,
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
